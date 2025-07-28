@@ -1,0 +1,17 @@
+services:
+  suricata:
+    build: .
+    container_name: suricata
+    network_mode: host       # ✅ включаем обратно — теперь это работает
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    volumes:
+      - ./logs:/var/log/suricata
+      - ./suricata.template.yaml:/etc/suricata/suricata.template.yaml:ro
+      - ./rules:/etc/suricata/rules
+    env_file:
+      - .env
+    command: >
+      sh -c "suricata -i ${INTERFACE} -c /etc/suricata/suricata.yaml -v"
+    restart: unless-stopped

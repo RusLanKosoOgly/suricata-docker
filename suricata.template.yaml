@@ -1,0 +1,89 @@
+%YAML 1.1
+---
+vars:
+  address-groups:
+    HOME_NET: "[${HOME_NET}]"
+    EXTERNAL_NET: "!$HOME_NET"
+
+  port-groups:
+    HTTP_PORTS: "${HTTP_PORTS}"
+    SHELLCODE_PORTS: "!${HTTP_PORTS}"
+    SSH_PORTS: "${SSH_PORTS}"
+    DNP3_PORTS: "20000"
+    MODBUS_PORTS: "502"
+    FILE_DATA_PORTS: "${HTTP_PORTS},443"
+
+default-log-dir: /var/log/suricata
+
+logging:
+  default-log-level: notice
+  outputs:
+    - console:
+        enabled: yes
+        type: json
+    - file:
+        enabled: yes
+        filename: suricata.log
+    - eve-log:
+        enabled: yes
+        filetype: regular
+        filename: eve.json
+        types:
+          - alert:
+              tagged-packets: yes
+          - http
+          - dns
+          - tls
+          - ssh
+          - files
+          - smtp
+          - flow
+          - netflow
+          - stats
+
+af-packet:
+  - interface: ${INTERFACE}
+    cluster-id: 99
+    cluster-type: cluster_flow
+    defrag: yes
+    use-mmap: yes
+    ring-size: 200000
+    block-size: 1048576
+    buffer-size: 393216
+    threads: auto
+    promisc: yes
+
+rule-files:
+  - suricata.rules
+
+default-rule-path: /etc/suricata/rules
+
+stream:
+  memcap: 64mb
+  checksum-validation: yes
+  inline: auto
+  reassembly:
+    memcap: 128mb
+    depth: 1mb
+    toserver-chunk-size: 2560
+    toclient-chunk-size: 2560
+
+app-layer:
+  protocols:
+    http:
+      enabled: yes
+      libhtp:
+        default-config:
+          personality: IDS
+          request-body-limit: 100kb
+          response-body-limit: 100kb
+          request-body-minimal-inspect-size: 32kb
+          response-body-minimal-inspect-size: 40kb
+    tls:
+      enabled: yes
+    dns:
+      enabled: yes
+
+host-mode: auto
+unix-command: enabled
+
