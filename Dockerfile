@@ -2,12 +2,12 @@ FROM ubuntu:22.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
+# Установка зависимостей и Suricata
 RUN apt-get update && apt-get install -y \
     software-properties-common \
     curl gnupg lsb-release \
     ca-certificates \
     python3-pip \
-    sudo \
     libpcap-dev \
     libpcre3-dev \
     libyaml-dev \
@@ -27,19 +27,21 @@ RUN apt-get update && apt-get install -y \
     iproute2 \
     net-tools \
     nano \
-    gettext
-
-RUN add-apt-repository ppa:oisf/suricata-stable -y && \
+    gettext && \
+    add-apt-repository ppa:oisf/suricata-stable -y && \
     apt-get update && \
-    apt-get install -y suricata
+    apt-get install -y suricata && \
+    apt-get clean
 
+# Создание папки логов
 RUN mkdir -p /var/log/suricata
 
+# Рабочая директория
 WORKDIR /etc/suricata
 
-COPY suricata.template.yaml /etc/suricata/suricata.template.yaml
+# Копируем финальный конфиг и правила
+COPY suricata.yaml /etc/suricata/suricata.yaml
 COPY rules /etc/suricata/rules
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
 
-ENTRYPOINT ["/entrypoint.sh"]
+# Команда запуска
+CMD ["suricata", "-i", "enp2s0", "-c", "/etc/suricata/suricata.yaml", "-v"]

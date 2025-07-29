@@ -1,17 +1,18 @@
 %YAML 1.1
 ---
+
 vars:
   address-groups:
-    HOME_NET: "[${HOME_NET}]"
+    HOME_NET: "[10.10.0.0/24]"
     EXTERNAL_NET: "!$HOME_NET"
 
   port-groups:
-    HTTP_PORTS: "${HTTP_PORTS}"
-    SHELLCODE_PORTS: "!${HTTP_PORTS}"
-    SSH_PORTS: "${SSH_PORTS}"
+    HTTP_PORTS: "80,8080,8000"
+    SHELLCODE_PORTS: "!80,8080,8000"
+    SSH_PORTS: "22"
     DNP3_PORTS: "20000"
     MODBUS_PORTS: "502"
-    FILE_DATA_PORTS: "${HTTP_PORTS},443"
+    FILE_DATA_PORTS: "80,8080,8000,443"
 
 default-log-dir: /var/log/suricata
 
@@ -42,7 +43,7 @@ logging:
           - stats
 
 af-packet:
-  - interface: ${INTERFACE}
+  - interface: enp2s0
     cluster-id: 99
     cluster-type: cluster_flow
     defrag: yes
@@ -86,4 +87,3 @@ app-layer:
 
 host-mode: auto
 unix-command: enabled
-
