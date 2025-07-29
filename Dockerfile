@@ -44,4 +44,5 @@ COPY suricata.yaml /etc/suricata/suricata.yaml
 COPY rules /etc/suricata/rules
 
 # Команда запуска
-CMD ["suricata", "-i", "enp2s0", "-c", "/etc/suricata/suricata.yaml", "-v"]
+CMD ["suricata", "-c", "/etc/suricata/suricata.yaml"]
+
